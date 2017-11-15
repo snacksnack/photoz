@@ -1,1 +1,16 @@
 <h1>hello, {{.Name}}</h1>
+Dog Name: {{.Dog.Name}}<br><br>
+age: {{.Age}}<br><br>
+temp: {{.Temp}}<br><br>
+colors: {{.Colors}}<br><br>
+personalities: {{.Personalities}}<br><br>
+
+<pre>
+  {{range .Colors}}
+    {{.}}
+  {{end}}
+</pre>
+
+<script>
+  var m = {{.Personalities}}; //automatically converted to json
+</script>
