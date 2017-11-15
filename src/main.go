@@ -12,6 +12,9 @@ func handlerFunc(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "<h1>GO, GO, GO, GOLANG!</h1>")
 	} else if r.URL.Path == "/contact" {
 		fmt.Fprint(w, "Please contact us at <a href=\"mailto:hihelloreid@gmail.com\">hihelloreid</a>.")
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "The requested page cannot be found.")
 	}
 }
 
