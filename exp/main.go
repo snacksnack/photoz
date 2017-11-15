@@ -23,4 +23,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	data.Name = "<script>alert('hello there.')</script>"
+	err = t.Execute(os.Stdout, data)
+	if err != nil {
+		panic(err)
+	}
 }
