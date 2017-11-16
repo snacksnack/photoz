@@ -32,23 +32,6 @@ func main() {
 	homeView = views.NewView("../views/home.gohtml")
 	contactView = views.NewView("../views/contact.gohtml")
 
-	/*var err error
-	homeTemplate, err = template.ParseFiles(
-		"../views/home.gohtml",
-		"../views/layouts/footer.gohtml",
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	contactTemplate, err = template.ParseFiles(
-		"../views/contact.gohtml",
-		"../views/layouts/footer.gohtml",
-	)
-	if err != nil {
-		panic(err)
-	}*/
-
 	r := mux.NewRouter()
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
