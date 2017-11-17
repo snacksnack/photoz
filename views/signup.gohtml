@@ -1,9 +1,21 @@
 {{define "yield"}}
+<div class="row">
+  <div class="col-md-4 offset-md-4">
+    <div class="card card-body">
+      <div class="card-header bg-primary text-white">sign up now</div>
+      <div class="card-body">
+        {{template "signupForm"}}
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{define "signupForm"}}
 <form>
   <div class="form-group">
     <label for="email">Email address</label>
     <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
-    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
   </div>
   <div class="form-group">
     <label for="password">Password</label>
