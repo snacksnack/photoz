@@ -2,6 +2,7 @@ package views
 
 import (
 	"html/template"
+	"net/http"
 	"path/filepath"
 )
 
@@ -13,6 +14,11 @@ var (
 type View struct {
 	Template *template.Template //pointer to a template
 	Layout   string
+}
+
+//Render is used to render current template with passed in data
+func (v *View) Render(w http.ResponseWriter, data interface{}) error {
+	return v.Template.ExecuteTemplate(w, v.Layout, data)
 }
 
 //create new view object and parse all template files
