@@ -18,6 +18,7 @@ type View struct {
 
 //Render is used to render current template with passed in data
 func (v *View) Render(w http.ResponseWriter, data interface{}) error {
+	w.Header().Set("Content-Type", "text/html")
 	return v.Template.ExecuteTemplate(w, v.Layout, data)
 }
 
@@ -33,6 +34,12 @@ func NewView(layout string, files ...string) *View {
 	return &View{
 		Template: t,
 		Layout:   layout,
+	}
+}
+
+func (v *View) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if err := v.Render(w, nil); err != nil {
+		panic(err)
 	}
 }
 
