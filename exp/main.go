@@ -93,4 +93,44 @@ func main() {
 		fmt.Println(rows.Err())
 	}
 	fmt.Println(users)
+
+	/*
+		creating a relationship between users and orders
+		for i := 1; i <= 6; i++ {
+			userID := 1
+			if i > 3 {
+				userID = 5
+			}
+			amount := i * 100
+			description := fmt.Sprintf("usb adapter x%d", i)
+
+			_, err = db.Query(`
+				INSERT INTO orders(user_id, amount, description)
+				VALUES($1, $2, $3)`, userID, amount, description)
+			if err != nil {
+				panic(err)
+			}
+		}
+	*/
+
+	//querying relational data records
+	rows, err = db.Query(`
+		SELECT *
+		FROM users
+		INNER JOIN orders ON users.id=orders.id`)
+	if err != nil {
+		panic(err)
+	}
+	for rows.Next() {
+		var userID, orderID, amount int
+		var email, name, description string
+		if err := rows.Scan(&userID, &name, &email, &orderID, &userID, &amount, &description); err != nil {
+			panic(err)
+		}
+		fmt.Println("userID: ", userID, "name: ", name, "email: ", email,
+			"orderID: ", orderID, "amount: ", amount, "description: ", description)
+	}
+	if rows.Err() != nil {
+		panic(rows.Err())
+	}
 }
