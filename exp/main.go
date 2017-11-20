@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -19,6 +22,7 @@ type User struct {
 	gorm.Model //not inheritance - embedding
 	Name       string
 	Email      string `gorm:"not null; unique_index"`
+	Color      string
 }
 
 func main() {
@@ -34,16 +38,34 @@ func main() {
 		panic(err)
 	}
 
+	db.LogMode(true)
+
 	//db.DropTableIfExists(&User{}) -- NEVER DO THIS IN PRODUCTION, LOSER
 	db.AutoMigrate(&User{})
 
-	/*
-		user := User{
-			Model: gorm.Model{
-				ID:        1,
-				CreatedAt: time.Now(),
-			},
-		}
-		fmt.Println(user.CreatedAt) // same as user.Model.CreatedAt
-	*/
+	name, email, color := getInfo()
+	u := User{
+		Name:  name,
+		Email: email,
+		Color: color,
+	}
+	if err = db.Create(&u).Error; err != nil {
+		panic(err)
+	} else {
+		fmt.Printf("%v+\n", u)
+	}
+}
+
+func getInfo() (name, email, color string) {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Please enter your name:")
+	name, _ = reader.ReadString('\n')
+	fmt.Println("Please enter your email address:")
+	email, _ = reader.ReadString('\n')
+	fmt.Println("Please enter your favorite color:")
+	color, _ = reader.ReadString('\n')
+	color = strings.TrimSpace(color)
+	name = strings.TrimSpace(name)
+	email = strings.TrimSpace(email)
+	return name, email, color
 }
