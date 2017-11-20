@@ -74,5 +74,22 @@ func main() {
 	db.Find(&users)
 	// SELECT * FROM "users"  WHERE "users"."deleted_at" IS NULL
 	fmt.Println(len(users))
-	fmt.Println(users)
+
+	var u User
+	if err := db.Where("name = ?", "marvin").First(u).Error; err != nil {
+		switch err {
+		case gorm.ErrRecordNotFound:
+			fmt.Println("No user found.")
+		case gorm.ErrInvalidSQL:
+			fmt.Println("Invalid SQL encountered.")
+		default:
+			panic(err)
+		}
+	}
+
+	errors := db.GetErrors()
+	if len(errors) > 0 {
+		panic(db.Error)
+	}
+
 }
