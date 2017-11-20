@@ -1,10 +1,7 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -33,39 +30,49 @@ func main() {
 		panic(err)
 	}
 	defer db.Close()
-
-	if err := db.DB().Ping(); err != nil {
-		panic(err)
-	}
-
 	db.LogMode(true)
-
-	//db.DropTableIfExists(&User{}) -- NEVER DO THIS IN PRODUCTION, LOSER
 	db.AutoMigrate(&User{})
 
-	name, email, color := getInfo()
-	u := User{
-		Name:  name,
-		Email: email,
-		Color: color,
-	}
-	if err = db.Create(&u).Error; err != nil {
-		panic(err)
-	} else {
-		fmt.Printf("%v+\n", u)
-	}
-}
+	//var u User
+	//db.First(&u)
+	// SELECT * FROM users ORDER BY id LIMIT 1;
+	//fmt.Println(u)
 
-func getInfo() (name, email, color string) {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Please enter your name:")
-	name, _ = reader.ReadString('\n')
-	fmt.Println("Please enter your email address:")
-	email, _ = reader.ReadString('\n')
-	fmt.Println("Please enter your favorite color:")
-	color, _ = reader.ReadString('\n')
-	color = strings.TrimSpace(color)
-	name = strings.TrimSpace(name)
-	email = strings.TrimSpace(email)
-	return name, email, color
+	//db.First(&u, 4)
+	//db.First(&u, "color = ?", "red")
+	// SELECT * FROM users WHERE id = 4;
+	//fmt.Println(u)
+
+	//db.Last(&u)
+	// SELECT * FROM users ORDER BY id DESC LIMIT 1;
+	//fmt.Println(u)
+
+	//db.Where("name = ? AND color = ?", "test2", "orange").First(&u)
+	//SELECT * FROM users WHERE name = 'test2' AND color = 'orange' limit 1;
+	//fmt.Println(u)
+
+	//db.Where("name in (?)", []string{"test1", "test2"}).Find(&u)
+	//SELECT * FROM "users" WHERE ((name in ('test1','test2')))
+	//fmt.Println(u)
+
+	//db.Where("color = ?", "blue").
+	//	Where("id > ?", 3).
+	//	First(&u)
+	// SELECT * FROM "users" WHERE ((color = 'blue') AND (id > '3')) ORDER BY "users"."id" ASC LIMIT 1
+	//fmt.Println(u)
+
+	//var u User = User{
+	//	Color: "red",
+	//	Email: "test5@test.com",
+	//}
+	//query by resource
+	//db.Where(u).First(&u)
+	// SELECT * FROM "users" WHERE (("users"."email" = 'test5@test.com') AND ("users"."color" = 'red')) ORDER BY "users"."id" ASC LIMIT 1
+	//fmt.Println(u)
+
+	var users []User
+	db.Find(&users)
+	// SELECT * FROM "users"  WHERE "users"."deleted_at" IS NULL
+	fmt.Println(len(users))
+	fmt.Println(users)
 }
