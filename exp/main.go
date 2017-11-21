@@ -20,6 +20,14 @@ type User struct {
 	Name       string
 	Email      string `gorm:"not null; unique_index"`
 	Color      string
+	Orders     []Order //orders will not be pull by default - must tell gorm to preload
+}
+
+type Order struct {
+	gorm.Model
+	UserId      uint
+	Amount      int
+	Description string
 }
 
 func main() {
@@ -31,65 +39,35 @@ func main() {
 	}
 	defer db.Close()
 	db.LogMode(true)
-	db.AutoMigrate(&User{})
-
-	//var u User
-	//db.First(&u)
-	// SELECT * FROM users ORDER BY id LIMIT 1;
-	//fmt.Println(u)
-
-	//db.First(&u, 4)
-	//db.First(&u, "color = ?", "red")
-	// SELECT * FROM users WHERE id = 4;
-	//fmt.Println(u)
-
-	//db.Last(&u)
-	// SELECT * FROM users ORDER BY id DESC LIMIT 1;
-	//fmt.Println(u)
-
-	//db.Where("name = ? AND color = ?", "test2", "orange").First(&u)
-	//SELECT * FROM users WHERE name = 'test2' AND color = 'orange' limit 1;
-	//fmt.Println(u)
-
-	//db.Where("name in (?)", []string{"test1", "test2"}).Find(&u)
-	//SELECT * FROM "users" WHERE ((name in ('test1','test2')))
-	//fmt.Println(u)
-
-	//db.Where("color = ?", "blue").
-	//	Where("id > ?", 3).
-	//	First(&u)
-	// SELECT * FROM "users" WHERE ((color = 'blue') AND (id > '3')) ORDER BY "users"."id" ASC LIMIT 1
-	//fmt.Println(u)
-
-	//var u User = User{
-	//	Color: "red",
-	//	Email: "test5@test.com",
-	//}
-	//query by resource
-	//db.Where(u).First(&u)
-	// SELECT * FROM "users" WHERE (("users"."email" = 'test5@test.com') AND ("users"."color" = 'red')) ORDER BY "users"."id" ASC LIMIT 1
-	//fmt.Println(u)
-
-	var users []User
-	db.Find(&users)
-	// SELECT * FROM "users"  WHERE "users"."deleted_at" IS NULL
-	fmt.Println(len(users))
+	db.AutoMigrate(&User{}, &Order{})
 
 	var u User
-	if err := db.Where("name = ?", "marvin").First(u).Error; err != nil {
-		switch err {
-		case gorm.ErrRecordNotFound:
-			fmt.Println("No user found.")
-		case gorm.ErrInvalidSQL:
-			fmt.Println("Invalid SQL encountered.")
-		default:
-			panic(err)
-		}
+	if err := db.Preload("Orders").First(&u).Error; err != nil {
+		panic(err)
 	}
+	fmt.Println(u)
+	fmt.Println(len(u.Orders))
+	//SELECT * FROM "orders"  WHERE "orders"."deleted_at" IS NULL AND (("user_id" IN('2'))) ORDER BY "orders"."id" ASC
 
-	errors := db.GetErrors()
-	if len(errors) > 0 {
-		panic(db.Error)
+	var users []User
+	if err := db.Preload("Orders").Find(&users).Error; err != nil {
+		panic(err)
 	}
+	fmt.Println(users)
+	//SELECT * FROM "orders"  WHERE "orders"."deleted_at" IS NULL AND (("user_id" IN ('2','4','5','6','7')))
 
+	//createOrder(db, u, 1001, "pants1")
+	//createOrder(db, u, 1002, "pants2")
+	//createOrder(db, u, 1003, "pants3")
+}
+
+func createOrder(db *gorm.DB, user User, amount int, desc string) {
+	err := db.Create(&Order{
+		UserId:      user.ID,
+		Amount:      amount,
+		Description: desc,
+	}).Error
+	if err != nil {
+		panic(err)
+	}
 }
