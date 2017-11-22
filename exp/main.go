@@ -40,7 +40,16 @@ func main() {
 	}
 	defer us.Close()
 	//us.DestructiveReset()
-	user, err := us.ById(2)
+
+	/*user := models.User{
+		Name:  "test1",
+		Email: "test1@test.com",
+	}
+	if err := us.Create(&user); err != nil {
+		panic(err)
+	}*/
+
+	user, err := us.ById(1)
 	if err != nil {
 		panic(err)
 	}
