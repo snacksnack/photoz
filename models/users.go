@@ -9,7 +9,8 @@ import (
 
 var (
 	// ErrNotFound returned when resource cannot be found in the database
-	ErrNotFound = errors.New("models: resource not found.")
+	ErrNotFound  = errors.New("models: resource not found.")
+	ErrInvalidID = errors.New("models: ID must be > 0")
 )
 
 type User struct {
@@ -34,22 +35,41 @@ func NewUserService(connectionInfo string) (*UserService, error) {
 	}, nil
 }
 
-func (us *UserService) ById(id uint) (*User, error) {
-	var user User
-	err := us.db.Where("id = ?", id).First(&user).Error
-	switch err {
-	case nil:
-		return &user, nil
-	case gorm.ErrRecordNotFound:
-		return nil, ErrNotFound
-	default:
-		return nil, err
-	}
-}
-
 // create user
 func (us *UserService) Create(user *User) error {
 	return us.db.Create(user).Error
+}
+
+// update user (expects complete User object)
+func (us *UserService) Update(user *User) error {
+	return us.db.Save(user).Error
+}
+
+// delete user with provided ID
+func (us *UserService) Delete(id uint) error {
+	//gorm deletes all records in table if id == 0
+	if id == 0 {
+		return ErrInvalidID
+	}
+
+	user := User{Model: gorm.Model{ID: id}}
+	return us.db.Delete(&user).Error
+}
+
+// look up user by id
+func (us *UserService) ById(id uint) (*User, error) {
+	var user User
+	db := us.db.Where("id = ?", id)
+	err := first(db, &user)
+	return &user, err
+}
+
+// look up user by email
+func (us *UserService) ByEmail(email string) (*User, error) {
+	var user User
+	db := us.db.Where("email = ?", email)
+	err := first(db, &user)
+	return &user, err
 }
 
 // closes the UserService database connection
@@ -61,4 +81,14 @@ func (us *UserService) Close() error {
 func (us *UserService) DestructiveReset() {
 	us.db.DropTableIfExists(&User{})
 	us.db.AutoMigrate(&User{})
+}
+
+// first will query using the provided gorm.DB and get first item returned
+// and place it in destination. if nothing found by query, return ErrNotFound
+func first(db *gorm.DB, dst interface{}) error {
+	err := db.First(dst).Error
+	if err == gorm.ErrRecordNotFound {
+		return ErrNotFound
+	}
+	return err
 }
