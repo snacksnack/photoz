@@ -19,7 +19,7 @@ type User struct {
 	gorm.Model
 	Name         string
 	Email        string `gorm:"not null;unique_index"`
-	Password     string `gorm:"-"` //telling gorm to ignore this - don't store in db
+	Password     string `sql:"-"` //telling gorm to ignore this - don't store in db
 	PasswordHash string `gorm:"not null"`
 }
 
