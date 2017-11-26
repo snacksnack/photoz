@@ -11,8 +11,9 @@ import (
 
 var (
 	// ErrNotFound returned when resource cannot be found in the database
-	ErrNotFound  = errors.New("models: resource not found.")
-	ErrInvalidID = errors.New("models: ID must be > 0")
+	ErrNotFound        = errors.New("models: resource not found.")
+	ErrInvalidID       = errors.New("models: ID must be > 0")
+	ErrInvalidPassword = errors.New("models: incorrect password provided.")
 )
 
 const userPwPepper = "wtul91.5"
@@ -83,6 +84,25 @@ func (us *UserService) ByEmail(email string) (*User, error) {
 	db := us.db.Where("email = ?", email)
 	err := first(db, &user)
 	return &user, err
+}
+
+// authenticate users
+func (us *UserService) Authenticate(email, password string) (*User, error) {
+	foundUser, err := us.ByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(foundUser.PasswordHash), []byte(password+userPwPepper))
+	if err != nil {
+		switch err {
+		case bcrypt.ErrMismatchedHashAndPassword:
+			return nil, ErrInvalidPassword
+		default:
+			return nil, err
+		}
+	}
+	return foundUser, nil
 }
 
 // closes the UserService database connection
