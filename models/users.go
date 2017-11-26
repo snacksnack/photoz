@@ -3,6 +3,8 @@ package models
 import (
 	"errors"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -15,8 +17,10 @@ var (
 
 type User struct {
 	gorm.Model
-	Name  string
-	Email string `gorm:"not null;unique_index"`
+	Name         string
+	Email        string `gorm:"not null;unique_index"`
+	Password     string `gorm:"-"` //telling gorm to ignore this - don't store in db
+	PasswordHash string `gorm:"not null"`
 }
 
 // look up user by id.
@@ -37,6 +41,12 @@ func NewUserService(connectionInfo string) (*UserService, error) {
 
 // create user
 func (us *UserService) Create(user *User) error {
+	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.PasswordHash = string(hashedBytes)
+	user.Password = "" //not entirely necessary, but could help preventing raw password from appearing in logs
 	return us.db.Create(user).Error
 }
 
