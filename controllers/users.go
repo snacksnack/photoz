@@ -55,10 +55,9 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintln(w, user)
-
-	//fmt.Fprintln(w, r.PostFormValue("email"))
-	//fmt.Fprintln(w, r.PostFormValue("password"))
+	signIn(w, &user)
+	//fmt.Fprintln(w, user)
+	http.Redirect(w, r, "/cookietest", http.StatusFound) //302
 }
 
 // POST login: verifies password/email combo and logs in user
@@ -80,13 +79,17 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	signIn(w, user)
+	//fmt.Fprint(w, user)
+	http.Redirect(w, r, "/cookietest", http.StatusFound) //302
+}
 
+func signIn(w http.ResponseWriter, user *models.User) {
 	cookie := http.Cookie{
 		Name:  "email",
 		Value: user.Email,
 	}
 	http.SetCookie(w, &cookie)
-	fmt.Fprint(w, user)
 }
 
 // used to display current user's cookie. will not go into production...
