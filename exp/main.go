@@ -1,12 +1,15 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
 	"fmt"
-
-	"../rand"
 )
 
 func main() {
-	fmt.Println(rand.String(10))
-	fmt.Println(rand.RememberToken())
+	toHash := []byte("thisismystringthatneedshashing")
+	h := hmac.New(sha256.New, []byte("mysecretkey"))
+	h.Write(toHash)
+	b := h.Sum(nil)
+	fmt.Println(b)
 }
