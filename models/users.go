@@ -14,13 +14,24 @@ import (
 
 var (
 	// ErrNotFound returned when resource cannot be found in the database
-	ErrNotFound        = errors.New("models: resource not found.")
+	ErrNotFound        = errors.New("models: resource not found")
 	ErrInvalidID       = errors.New("models: ID must be > 0")
-	ErrInvalidPassword = errors.New("models: incorrect password provided.")
+	ErrInvalidPassword = errors.New("models: incorrect password provided")
 )
 
 const userPwPepper = "wtul91.5"
 const hmacSecretKey = "progressivestereo"
+
+// User represents the user model stored in the database.
+type User struct {
+	gorm.Model
+	Name         string
+	Email        string `gorm:"not null;unique_index"`
+	Password     string `sql:"-"` //telling gorm to ignore this - don't store in db
+	PasswordHash string `gorm:"not null"`
+	Remember     string `sql:"-"`
+	RememberHash string `gorm:"not null;unique_index"`
+}
 
 // UserDB is used to interact with the Users database
 type UserDB interface {
@@ -34,7 +45,7 @@ type UserDB interface {
 	Update(user *User) error
 	Delete(id uint) error
 
-	// Used to close a DB connection
+	// Close closes a DB connection
 	Close() error
 
 	// Migration helpers
@@ -42,18 +53,14 @@ type UserDB interface {
 	DestructiveReset() error
 }
 
-type User struct {
-	gorm.Model
-	Name         string
-	Email        string `gorm:"not null;unique_index"`
-	Password     string `sql:"-"` //telling gorm to ignore this - don't store in db
-	PasswordHash string `gorm:"not null"`
-	Remember     string `sql:"-"`
-	RememberHash string `gorm:"not null;unique_index"`
+// UserService is a set of methods used to work with the user model
+type UserService interface {
+	Authenticate(email, password string) (*User, error)
+	UserDB
 }
 
 // look up user by id.
-type UserService struct {
+type userService struct {
 	UserDB
 }
 
@@ -67,6 +74,15 @@ type userGorm struct {
 type userValidator struct {
 	UserDB
 }
+
+// test that userGorm implements UserDB interface
+var _ UserDB = &userGorm{}
+
+// test that userValidator implements UserDB interface
+var _ UserDB = &userValidator{}
+
+//test that userService implements UserDB interface
+var _ UserDB = &userService{}
 
 // create userGorm -- establish database connection
 func newUserGorm(connectionInfo string) (*userGorm, error) {
@@ -82,15 +98,12 @@ func newUserGorm(connectionInfo string) (*userGorm, error) {
 	}, nil
 }
 
-// test that userGorm matches UserDB interface
-var _ UserDB = &userGorm{}
-
-func NewUserService(connectionInfo string) (*UserService, error) {
+func NewUserService(connectionInfo string) (UserService, error) {
 	ug, err := newUserGorm(connectionInfo)
 	if err != nil {
 		return nil, err
 	}
-	return &UserService{
+	return &userService{
 		UserDB: &userValidator{
 			UserDB: ug,
 		},
@@ -167,7 +180,7 @@ func (ug *userGorm) ByRemember(token string) (*User, error) {
 }
 
 // authenticate users
-func (us *UserService) Authenticate(email, password string) (*User, error) {
+func (us *userService) Authenticate(email, password string) (*User, error) {
 	foundUser, err := us.ByEmail(email)
 	if err != nil {
 		return nil, err
