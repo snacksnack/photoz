@@ -1,44 +1,47 @@
 package main
 
-import (
-	"fmt"
+import "fmt"
 
-	"../models"
-)
+type Dog struct{}
 
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "photoz"
-	password = "photoz"
-	dbname   = "photoz_test"
-)
+type Cat struct{}
+
+func (c Cat) Speak() {
+	fmt.Println("meow")
+}
+
+func (d Dog) Speak() {
+	fmt.Println("woof")
+}
+
+type Husky struct {
+	//dog Dog
+	//Dog //now you Husky can call any method available to Dog type
+	Speaker
+}
+
+type Speaker interface {
+	Speak()
+}
+
+type SpeakerPrefixer struct {
+	Speaker
+}
+
+func (sp SpeakerPrefixer) Speak() {
+	fmt.Print("Prefix: ")
+	sp.Speaker.Speak()
+}
+
+/*
+type UserReader interface {
+	ByID(id uint) (*User, error)
+}
+*/
 
 func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	us, err := models.NewUserService(psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-	defer us.Close()
-	//us.DestructiveReset()
-	//us.AutoMigrate()
-
-	user := models.User{
-		Name:     "test100",
-		Email:    "test100@test.com",
-		Password: "test100",
-		Remember: "abc123",
-	}
-	err = us.Create(&user)
-	if err != nil {
-		panic(err)
-	}
-
-	user2, err := us.ByRemember("abc123")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%+v\n", user2)
+	//h := Husky{Dog{}}
+	//h := Husky{Cat{}}
+	h := Husky{SpeakerPrefixer{Cat{}}}
+	h.Speak() //equal to h.Dog.Speak()
 }
