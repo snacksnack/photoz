@@ -164,9 +164,11 @@ func (ug *userGorm) Update(user *User) error {
 }
 
 func (uv *userValidator) Delete(id uint) error {
-	//gorm deletes all records in table if id == 0
-	if id == 0 {
-		return ErrInvalidID
+	var user User
+	user.ID = id
+	err := runUserValFuncs(&user, uv.idNotZero)
+	if err != nil {
+		return err
 	}
 	return uv.UserDB.Delete(id)
 }
@@ -256,6 +258,13 @@ func (uv *userValidator) setRememberIfUnset(user *User) error {
 		return err
 	}
 	user.Remember = token
+	return nil
+}
+
+func (uv *userValidator) idNotZero(user *User) error {
+	if user.ID == 0 {
+		return ErrInvalidID
+	}
 	return nil
 }
 
