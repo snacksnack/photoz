@@ -25,13 +25,16 @@ var (
 	ErrInvalidPassword = errors.New("models: incorrect password provided")
 
 	// ErrEmailRequired returned when is email is blank on form submission
-	ErrEmailRequired = errors.New("modesl: Email address is required")
+	ErrEmailRequired = errors.New("models: Email address is required")
 
 	// ErrEmailInvalid returned when email syntax is bad
 	ErrEmailInvalid = errors.New("models: Email address is not valid")
 
+	// ErrEmailTaken returned when an update/create is attempted with already registered address
+	ErrEmailTaken = errors.New("models: Email address is already registered")
+
 	// emailRegex is used to validate email addresses
-	emailRegex = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,16}$`)
 )
 
 const userPwPepper = "wtul91.5"
@@ -129,11 +132,7 @@ func NewUserService(connectionInfo string) (UserService, error) {
 		return nil, err
 	}
 	hmac := hash.NewHMAC(hmacSecretKey)
-	uv := &userValidator{
-		hmac:   hmac,
-		UserDB: ug,
-	}
-
+	uv := newUserValidator(ug, hmac)
 	return &userService{
 		UserDB: uv,
 	}, nil
@@ -167,7 +166,8 @@ func (uv *userValidator) Create(user *User) error {
 		uv.hmacRemember,
 		uv.normalizeEmail,
 		uv.requireEmail,
-		uv.emailFormat)
+		uv.emailFormat,
+		uv.emailIsAvail)
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,8 @@ func (uv *userValidator) Update(user *User) error {
 		uv.hmacRemember,
 		uv.normalizeEmail,
 		uv.requireEmail,
-		uv.emailFormat)
+		uv.emailFormat,
+		uv.emailIsAvail)
 	if err != nil {
 		return err
 	}
@@ -332,8 +333,26 @@ func (uv *userValidator) emailFormat(user *User) error {
 	if user.Email == "" {
 		return nil
 	}
-	if !uv.emailRegex.MatchString(user.Password) {
+	if !uv.emailRegex.MatchString(user.Email) {
 		return ErrEmailInvalid
+	}
+	return nil
+}
+
+func (uv *userValidator) emailIsAvail(user *User) error {
+	existing, err := uv.ByEmail(user.Email)
+	if err == ErrNotFound {
+		// email address is not taken
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+
+	// we found user with this address. if the user has same id as
+	// address already in DB, it's an update to the same user
+	if user.ID != existing.ID {
+		return ErrEmailTaken
 	}
 	return nil
 }
