@@ -18,11 +18,11 @@ var (
 	// ErrNotFound returned when resource cannot be found in the database
 	ErrNotFound = errors.New("models: resource not found")
 
-	// ErrInvalid returned when an invalid ID is provided to method like Delete
-	ErrInvalidID = errors.New("models: ID must be > 0")
+	// ErrInvalidID returned when an invalid ID is provided to method like Delete
+	ErrIDInvalid = errors.New("models: ID must be > 0")
 
-	// ErrInvalidPassword returned when incorrect password used for authentication
-	ErrInvalidPassword = errors.New("models: incorrect password provided")
+	// ErrPasswordIncorrect returned when incorrect password used for authentication
+	ErrPasswordIncorrect = errors.New("models: incorrect password provided")
 
 	// ErrEmailRequired returned when is email is blank on form submission
 	ErrEmailRequired = errors.New("models: Email address is required")
@@ -32,6 +32,12 @@ var (
 
 	// ErrEmailTaken returned when an update/create is attempted with already registered address
 	ErrEmailTaken = errors.New("models: Email address is already registered")
+
+	// ErrPasswordTooShort return when password is too short in Create/Update
+	ErrPasswordTooShort = errors.New("models: Password must be at least 8 characters long")
+
+	// ErrPasswordRequired returned when Create attempted without submitting password
+	ErrPasswordRequired = errors.New("models: Password is required")
 
 	// emailRegex is used to validate email addresses
 	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,16}$`)
@@ -161,7 +167,10 @@ func (uv *userValidator) ByRemember(token string) (*User, error) {
 // create user
 func (uv *userValidator) Create(user *User) error {
 	err := runUserValFuncs(user,
+		uv.passwordRequired,
+		uv.passwordMinLength,
 		uv.bcryptPassword,
+		uv.passwordHashRequired,
 		uv.setRememberIfUnset,
 		uv.hmacRemember,
 		uv.normalizeEmail,
@@ -182,7 +191,9 @@ func (ug *userGorm) Create(user *User) error {
 // Update will hash a remember token if it is provided
 func (uv *userValidator) Update(user *User) error {
 	err := runUserValFuncs(user,
+		uv.passwordMinLength,
 		uv.bcryptPassword,
+		uv.passwordHashRequired,
 		uv.hmacRemember,
 		uv.normalizeEmail,
 		uv.requireEmail,
@@ -265,7 +276,7 @@ func (us *userService) Authenticate(email, password string) (*User, error) {
 	if err != nil {
 		switch err {
 		case bcrypt.ErrMismatchedHashAndPassword:
-			return nil, ErrInvalidPassword
+			return nil, ErrPasswordIncorrect
 		default:
 			return nil, err
 		}
@@ -311,7 +322,7 @@ func (uv *userValidator) setRememberIfUnset(user *User) error {
 
 func (uv *userValidator) idNotZero(user *User) error {
 	if user.ID == 0 {
-		return ErrInvalidID
+		return ErrIDInvalid
 	}
 	return nil
 }
@@ -353,6 +364,31 @@ func (uv *userValidator) emailIsAvail(user *User) error {
 	// address already in DB, it's an update to the same user
 	if user.ID != existing.ID {
 		return ErrEmailTaken
+	}
+	return nil
+}
+
+func (uv *userValidator) passwordMinLength(user *User) error {
+	if user.Password == "" {
+		return nil
+	}
+
+	if len(user.Password) < 8 {
+		return ErrPasswordTooShort
+	}
+	return nil
+}
+
+func (uv *userValidator) passwordRequired(user *User) error {
+	if user.Password == "" {
+		return ErrPasswordRequired
+	}
+	return nil
+}
+
+func (uv *userValidator) passwordHashRequired(user *User) error {
+	if user.PasswordHash == "" {
+		return ErrPasswordRequired
 	}
 	return nil
 }
