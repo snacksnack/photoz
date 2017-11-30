@@ -37,7 +37,17 @@ func NewUsers(us models.UserService) *Users {
 
 //GET signup form
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	u.NewView.Render(w, nil)
+	// just testing alerts - this code will be relocated
+	type Alert struct {
+		Level   string
+		Message string
+	}
+	a := Alert{
+		Level:   "success",
+		Message: "successful dynamic alert!",
+	}
+
+	u.NewView.Render(w, a)
 }
 
 //POST signup form
