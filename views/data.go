@@ -9,6 +9,8 @@ const (
 	AlertLvlInfo = "info"
 	// AlertLvlSuccess displays upon successful action
 	AlertLvlSuccess = "success"
+	// AlertMsgGeneric is given when arbitrary error occurs on the backend
+	AlertMsgGeneric = "Something went wrong. Please try again and contact us if the problem persists"
 )
 
 // Data holds all the data we'll pass into our view
