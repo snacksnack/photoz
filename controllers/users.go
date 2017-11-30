@@ -37,25 +37,12 @@ func NewUsers(us models.UserService) *Users {
 
 //GET signup form
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	// just testing alerts - this code will be relocated
-	type Alert struct {
-		Level   string
-		Message string
-	}
-
-	// holds all the data we'll pass into our view
-	type Data struct {
-		Alert Alert
-		Yield interface{}
-	}
-	a := Alert{
-		Level:   "success",
-		Message: "successful dynamic alert!",
-	}
-
-	d := Data{
-		Alert: a,
-		Yield: "hello",
+	d := views.Data{
+		Alert: &views.Alert{
+			Level:   views.AlertLvlError,
+			Message: "something went wrong",
+		},
+		Yield: "hi hi hi",
 	}
 
 	u.NewView.Render(w, d)
