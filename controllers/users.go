@@ -42,12 +42,23 @@ func (u *Users) New(w http.ResponseWriter, r *http.Request) {
 		Level   string
 		Message string
 	}
+
+	// holds all the data we'll pass into our view
+	type Data struct {
+		Alert Alert
+		Yield interface{}
+	}
 	a := Alert{
 		Level:   "success",
 		Message: "successful dynamic alert!",
 	}
 
-	u.NewView.Render(w, a)
+	d := Data{
+		Alert: a,
+		Yield: "hello",
+	}
+
+	u.NewView.Render(w, d)
 }
 
 //POST signup form
