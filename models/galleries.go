@@ -14,9 +14,34 @@ type GalleryService interface {
 }
 
 type GalleryDB interface {
-	Create(gallery *Gallery)
+	Create(gallery *Gallery) error
 }
+
+type galleryService struct {
+	GalleryDB
+}
+
+type galleryValidator struct {
+	GalleryDB
+}
+
+// ensure that galleryGorm implements GalleryDB
+var _ GalleryDB = &galleryGorm{}
 
 type galleryGorm struct {
 	db *gorm.DB
+}
+
+type gallerValidator struct {
+	GalleryDB
+}
+
+func NewGalleryService(db *gorm.DB) GalleryService {
+	return &galleryService{
+		GalleryDB: &galleryValidator{&galleryGorm{db}},
+	}
+}
+
+func (gg *galleryGorm) Create(gallery *Gallery) error {
+	return gg.db.Create(gallery).Error
 }
