@@ -21,6 +21,8 @@ var (
 const userPwPepper = "wtul91.5"
 const hmacSecretKey = "progressivestereo"
 
+var _ UserDB = &userGorm{}
+
 // User represents the user model stored in the database.
 type User struct {
 	gorm.Model
@@ -95,28 +97,13 @@ func runUserValFuncs(user *User, fns ...userValFunc) error {
 	return nil
 }
 
-// create userGorm -- establish database connection
-func newUserGorm(connectionInfo string) (*userGorm, error) {
-	db, err := gorm.Open("postgres", connectionInfo)
-	if err != nil {
-		return nil, err
-	}
-	db.LogMode(true)
-	return &userGorm{
-		db: db,
-	}, nil
-}
-
-func NewUserService(connectionInfo string) (UserService, error) {
-	ug, err := newUserGorm(connectionInfo)
-	if err != nil {
-		return nil, err
-	}
+func NewUserService(db *gorm.DB) UserService {
+	ug := &userGorm{db}
 	hmac := hash.NewHMAC(hmacSecretKey)
 	uv := newUserValidator(ug, hmac)
 	return &userService{
 		UserDB: uv,
-	}, nil
+	}
 }
 
 func newUserValidator(udb UserDB, hmac hash.HMAC) *userValidator {
