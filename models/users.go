@@ -288,7 +288,7 @@ func (uv *userValidator) hmacRemember(user *User) error {
 }
 
 func (uv *userValidator) setRememberIfUnset(user *User) error {
-	if user.Remember == "" {
+	if user.Remember != "" {
 		return nil
 	}
 	token, err := rand.RememberToken()
