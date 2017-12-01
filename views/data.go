@@ -19,8 +19,31 @@ type Data struct {
 	Yield interface{}
 }
 
+type PublicError interface {
+	error
+	Public() string
+}
+
 // Alert is used to render Bootstrap Alert messages
 type Alert struct {
 	Level   string
 	Message string
+}
+
+// SetAlert determines what type of error to display to the end user
+func (d *Data) SetAlert(err error) {
+	// see if error incoming error implements PublicError interface.
+	// if so, ok resolves to true. pErr is then instantiated and caste
+	// as Public Error
+	if pErr, ok := err.(PublicError); ok {
+		d.Alert = &Alert{
+			Level:   AlertLvlError,
+			Message: pErr.Public(),
+		}
+	} else {
+		d.Alert = &Alert{
+			Level:   AlertLvlError,
+			Message: AlertMsgGeneric,
+		}
+	}
 }

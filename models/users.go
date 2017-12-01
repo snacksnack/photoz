@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"regexp"
 	"strings"
 
@@ -15,37 +14,6 @@ import (
 )
 
 var (
-	// ErrNotFound returned when resource cannot be found in the database
-	ErrNotFound = errors.New("models: resource not found")
-
-	// ErrInvalidID returned when an invalid ID is provided to method like Delete
-	ErrIDInvalid = errors.New("models: ID must be > 0")
-
-	// ErrPasswordIncorrect returned when incorrect password used for authentication
-	ErrPasswordIncorrect = errors.New("models: incorrect password provided")
-
-	// ErrEmailRequired returned when is email is blank on form submission
-	ErrEmailRequired = errors.New("models: Email address is required")
-
-	// ErrEmailInvalid returned when email syntax is bad
-	ErrEmailInvalid = errors.New("models: Email address is not valid")
-
-	// ErrEmailTaken returned when an update/create is attempted with already registered address
-	ErrEmailTaken = errors.New("models: Email address is already registered")
-
-	// ErrPasswordTooShort return when password is too short in Create/Update
-	ErrPasswordTooShort = errors.New("models: Password must be at least 8 characters long")
-
-	// ErrPasswordRequired returned when Create attempted without submitting password
-	ErrPasswordRequired = errors.New("models: Password is required")
-
-	// ErrRememberTooShort returned when remember token is too short
-	ErrRememberTooShort = errors.New("models: Remember token must be at least 32 bytes")
-
-	// ErrRememberRequired returned when Create/Update attempted without a
-	// user remember token hash
-	ErrRememberRequired = errors.New("models: Remember token is required")
-
 	// emailRegex is used to validate email addresses
 	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,16}$`)
 )
