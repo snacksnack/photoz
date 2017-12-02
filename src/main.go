@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"../controllers"
+	"../middleware"
 	"../models"
 	"github.com/gorilla/mux"
 )
@@ -27,6 +28,9 @@ func main() {
 	//services.DestructiveReset()
 	services.AutoMigrate()
 
+	requireUserMw := middleware.RequireUser{
+		UserService: services.User,
+	}
 	staticC := controllers.NewStatic()
 	usersC := controllers.NewUsers(services.User)
 	galleriesC := controllers.NewGalleries(services.Gallery)
@@ -43,8 +47,8 @@ func main() {
 	r.HandleFunc("/cookietest", usersC.CookieTest).Methods("GET")
 
 	// Gallery routes
-	r.Handle("/galleries/new", galleriesC.New).Methods("GET")
-	r.HandleFunc("/galleries", galleriesC.Create).Methods("POST")
+	r.Handle("/galleries/new", requireUserMw.Apply(galleriesC.New)).Methods("GET")
+	r.HandleFunc("/galleries", requireUserMw.ApplyFn(galleriesC.Create)).Methods("POST")
 
 	log.Println("Starting gmux server on :3000...")
 	http.ListenAndServe(":3000", r)
