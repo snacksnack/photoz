@@ -19,4 +19,7 @@
   </div>
   <button type="submit" class="btn btn-primary">Update</button>
 </form>
+<form class="" action="/galleries/{{.ID}}/delete" method="POST">
+  <button type="submit" name="button" class="btn btn-danger">Delete</button>
+</form>
 {{end}}
