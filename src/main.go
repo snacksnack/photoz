@@ -28,8 +28,12 @@ func main() {
 	//services.DestructiveReset()
 	services.AutoMigrate()
 
-	requireUserMw := middleware.RequireUser{
+	userMw := middleware.User{
 		UserService: services.User,
+	}
+
+	requireUserMw := middleware.RequireUser{
+		User: userMw,
 	}
 
 	r := mux.NewRouter()
@@ -58,7 +62,7 @@ func main() {
 	r.HandleFunc("/galleries/{id:[0-9]+}", galleriesC.Show).Methods("GET").Name(controllers.ShowGallery)
 
 	log.Println("Starting gmux server on :3000...")
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(":3000", userMw.Apply(r))
 }
 
 func must(err error) {

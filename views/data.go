@@ -1,5 +1,7 @@
 package views
 
+import "../models"
+
 const (
 	// AlertLvlError displayed when error encountered
 	AlertLvlError = "danger"
@@ -16,6 +18,7 @@ const (
 // Data holds all the data we'll pass into our view
 type Data struct {
 	Alert *Alert
+	User  *models.User
 	Yield interface{}
 }
 
