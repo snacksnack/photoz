@@ -4,6 +4,7 @@ import "github.com/jinzhu/gorm"
 
 type Services struct {
 	Gallery GalleryService
+	Image   ImageService
 	User    UserService
 	db      *gorm.DB
 }
@@ -17,6 +18,7 @@ func NewServices(connectionInfo string) (*Services, error) {
 	return &Services{
 		User:    NewUserService(db),
 		Gallery: NewGalleryService(db),
+		Image:   NewImageService(),
 		db:      db,
 	}, nil
 }
