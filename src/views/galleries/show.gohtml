@@ -1,0 +1,16 @@
+{{define "yield"}}
+<div class="row">
+  <div class="col-md-12">
+    <h1>
+      {{.Title}}
+    </h1>
+    <ul>
+      {{range .Images}}
+        <li>
+          {{.}}
+        </li>
+      {{end}}
+    </ul>
+  </div>
+</div>
+{{end}}

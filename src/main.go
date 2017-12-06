@@ -5,13 +5,15 @@ import (
 	"log"
 	"net/http"
 
-	"../controllers"
-	"../middleware"
-	"../models"
+	"./controllers"
+	"./middleware"
+	"./models"
+
 	"github.com/gorilla/mux"
 )
 
 const (
+	rootdir  = "/Users/c02862a/golang/usegolang/photoz/src"
 	host     = "localhost"
 	port     = 5432
 	user     = "photoz"
