@@ -1,6 +1,8 @@
 {{define "yield"}}
 <div class="row">
   <div class="col-md-12">
+    <h2>Edit your gallery</h2>
+    <a href="/galleries/{{.ID}}">View this gallery</a>
     {{template "editGalleryForm" .}}
   </div>
   <div class="col-md-10">
@@ -53,16 +55,27 @@
 {{end}}
 
 {{define "galleryImages"}}
-<div class="form-group row">
+<!--<div class="row">
   <div class="col-md-10 offset-md-1">
-    <label for="images" class="col-md-1 col-form-label col-form-label-md text-right">Images</label>
-    <ul>
-      {{range .Images}}
-        <li>
-          {{.}}
-        </li>
-      {{end}}
-    </ul>
+    <label for="images" class="col-md-1 text-right">Images</label>
   </div>
+</div>-->
+<div class="row offset-md-1">
+  {{range .ImagesSplitN 6}}
+  <div class="col-md-2">
+      {{range .}}
+      <a href="{{.}}">
+        <img src="{{.}}" alt="image" class="thumbnail">
+      </a>
+      {{end}}
+    </div>
+    {{end}}
+  </div>
+
+  <style>
+    .thumbnail {
+      width: 100%;
+    }
+   </style>
 </div>
 {{end}}

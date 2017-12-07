@@ -47,6 +47,19 @@ func NewGalleryService(db *gorm.DB) GalleryService {
 	}
 }
 
+// split []Images slice into n slices
+func (g *Gallery) ImagesSplitN(n int) [][]string {
+	ret := make([][]string, n)
+	for i := 0; i < n; i++ {
+		ret[i] = make([]string, 0)
+	}
+	for i, img := range g.Images {
+		bucket := i % n
+		ret[bucket] = append(ret[bucket], img)
+	}
+	return ret
+}
+
 func (gg *galleryGorm) ByUserID(userID uint) ([]Gallery, error) {
 	var galleries []Gallery
 	gg.db.Where("user_id = ?", userID).Find(&galleries)

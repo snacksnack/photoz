@@ -43,16 +43,22 @@ func (is *imageService) Create(galleryID uint, r io.ReadCloser, filename string)
 }
 
 func (is *imageService) ByGalleryID(galleryID uint) ([]string, error) {
+	fmt.Println("here")
 	path := is.imagePath(galleryID)
+	fmt.Println(path)
 	strings, err := filepath.Glob(path + "*")
 	if err != nil {
 		return nil, err
+	}
+	fmt.Println(strings)
+	for i := range strings {
+		strings[i] = "/" + strings[i]
 	}
 	return strings, nil
 }
 
 func (is *imageService) imagePath(galleryID uint) string {
-	return fmt.Sprintf("../images/gallery/%v/", galleryID)
+	return fmt.Sprintf("./images/gallery/%v/", galleryID)
 }
 
 func (is *imageService) mkImagePath(galleryID uint) (string, error) {

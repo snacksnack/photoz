@@ -61,5 +61,6 @@ builds/**/images/*
 lenslocked.com
 images/**
 **images/**
+src/images/*
 
 .config
