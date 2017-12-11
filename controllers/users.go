@@ -46,7 +46,6 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	var vd views.Data
 	var form SignupForm
 	if err := parseForm(r, &form); err != nil {
-		log.Println(err)
 		vd.SetAlert(err)
 		u.NewView.Render(w, r, vd)
 		return
@@ -63,6 +62,7 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	err := u.signIn(w, &user)
 	if err != nil {
+		log.Println(err)
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
@@ -74,7 +74,6 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 	vd := views.Data{}
 	form := LoginForm{}
 	if err := parseForm(r, &form); err != nil {
-		log.Println(err)
 		vd.SetAlert(err)
 		u.LoginView.Render(w, r, vd)
 		return
