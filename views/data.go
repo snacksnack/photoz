@@ -1,6 +1,9 @@
 package views
 
-import "photoz/models"
+import (
+	"log"
+	"photoz/models"
+)
 
 const (
 	// AlertLvlError displayed when error encountered
@@ -44,6 +47,7 @@ func (d *Data) SetAlert(err error) {
 			Message: pErr.Public(),
 		}
 	} else {
+		log.Println(err)
 		d.Alert = &Alert{
 			Level:   AlertLvlError,
 			Message: AlertMsgGeneric,
