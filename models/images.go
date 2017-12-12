@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,7 +28,10 @@ func NewImageService() ImageService {
 }
 
 func (i *Image) Path() string {
-	return "/" + i.RelativePath()
+	temp := url.URL{
+		Path: "/" + i.RelativePath(),
+	}
+	return temp.String()
 }
 
 func (i *Image) RelativePath() string {
