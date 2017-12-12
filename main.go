@@ -5,9 +5,12 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gorilla/csrf"
+
 	"photoz/controllers"
 	"photoz/middleware"
 	"photoz/models"
+	"photoz/rand"
 
 	"github.com/gorilla/mux"
 )
@@ -29,6 +32,12 @@ func main() {
 	defer services.Close()
 	//services.DestructiveReset()
 	services.AutoMigrate()
+
+	//TODO: update this to be a config variable
+	isProd := false
+	b, err := rand.Bytes(32)
+	must(err)
+	csrfMw := csrf.Protect(b, csrf.Secure(isProd))
 
 	userMw := middleware.User{
 		UserService: services.User,
@@ -76,7 +85,7 @@ func main() {
 	r.HandleFunc("/galleries/{id:[0-9]+}", galleriesC.Show).Methods("GET").Name(controllers.ShowGallery)
 
 	log.Println("Starting gmux server on :3000...")
-	http.ListenAndServe(":3000", userMw.Apply(r))
+	http.ListenAndServe(":3000", csrfMw(userMw.Apply(r)))
 }
 
 func must(err error) {
