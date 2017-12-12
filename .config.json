@@ -1,0 +1,13 @@
+{
+  "port": 3000,
+  "env": "dev",
+  "pepper": "wtul91.5",
+  "hmac_key": "progressivestereo",
+  "database": {
+    "host": "localhost",
+		"port": 5432,
+		"user": "photoz",
+		"password": "photoz",
+		"name": "photoz_test"
+  }
+}
