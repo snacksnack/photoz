@@ -1,32 +1,80 @@
 package main
 
-import (
-	"fmt"
-	"log"
-	"net/http"
+import "fmt"
 
-	"github.com/gorilla/csrf"
+type PostgresConfig struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+}
 
-	"photoz/controllers"
-	"photoz/middleware"
-	"photoz/models"
-	"photoz/rand"
+type Config struct {
+	Port int
+	Env  string
+}
 
-	"github.com/gorilla/mux"
+func (c Config) IsProd() bool {
+	return c.Env == "prod"
+}
+
+func DefaultConfig() Config {
+	return Config{
+		Port: 3000,
+		Env:  "dev",
+	}
+}
+
+func (c PostgresConfig) ConnectionInfo() string {
+	if c.Password == "" {
+		return fmt.Sprintf("host=%s port=%d user=%s dbname=%s sslmode=disable",
+			c.Host, c.Port, c.Password, c.Name)
+	}
+	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		c.Host, c.Port, c.User, c.Password, c.Name)
+}
+
+func (c PostgresConfig) Dialect() string {
+	return "postgres"
+}
+
+func DefaultPostGresConfig() PostgresConfig {
+	return PostgresConfig{
+		Host:     "localhost",
+		Port:     5432,
+		User:     "photoz",
+		Password: "photoz",
+		Name:     "photoz_test",
+	}
+}
+
+/*
+const (
+	rootdir  = "/Users/c02862a/golang/usegolang/photoz/src"
+	host     = "localhost"
+	port     = 5432
+	user     = "photoz"
+	password = "photoz"
+	dbname   = "photoz_test"
 )
 
 func main() {
-	cfg := DefaultConfig()
-	dbCfg := DefaultPostGresConfig()
-	services, err := models.NewServices(dbCfg.Dialect(), dbCfg.ConnectionInfo())
+	// TODO: configurize this
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	services, err := models.NewServices(psqlInfo)
 	must(err)
 	defer services.Close()
 	//services.DestructiveReset()
 	services.AutoMigrate()
 
+	//TODO: configurize this
+	isProd := false
 	b, err := rand.Bytes(32)
 	must(err)
-	csrfMw := csrf.Protect(b, csrf.Secure(cfg.IsProd()))
+	// TODO: configurize this
+	csrfMw := csrf.Protect(b, csrf.Secure(isProd))
 
 	userMw := middleware.User{
 		UserService: services.User,
@@ -74,8 +122,8 @@ func main() {
 	r.HandleFunc("/galleries/{id:[0-9]+}", galleriesC.Show).Methods("GET").Name(controllers.ShowGallery)
 
 	// TODO: configurize port
-	log.Printf("Starting gmux server on :%d...\n", cfg.Port)
-	http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port), csrfMw(userMw.Apply(r)))
+	log.Println("Starting gmux server on :3000...")
+	http.ListenAndServe(":3000", csrfMw(userMw.Apply(r)))
 }
 
 func must(err error) {
@@ -83,3 +131,4 @@ func must(err error) {
 		panic(err)
 	}
 }
+*/

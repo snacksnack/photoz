@@ -7,7 +7,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 
 	"photoz/hash"
 	"photoz/rand"
@@ -18,6 +17,7 @@ var (
 	emailRegex = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,16}$`)
 )
 
+// TODO: configurize this
 const userPwPepper = "wtul91.5"
 const hmacSecretKey = "progressivestereo"
 
