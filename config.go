@@ -60,7 +60,7 @@ func DefaultPostGresConfig() PostgresConfig {
 }
 
 func LoadConfig(configReq bool) Config {
-	f, err := os.Open(".config.json")
+	f, err := os.Open(".config")
 	if err != nil {
 		if configReq {
 			panic(err)
