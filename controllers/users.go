@@ -68,7 +68,11 @@ func (u *Users) Create(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/login", http.StatusFound)
 		return
 	}
-	http.Redirect(w, r, "/galleries", http.StatusFound) //302
+	alert := views.Alert{
+		Level:   views.AlertLvlSuccess,
+		Message: "Welcome to photoz.reidc.io!",
+	}
+	views.RedirectAlert(w, r, "/galleries", http.StatusFound, alert) //302
 }
 
 // Login -- POST verifies password/email combo and logs in user
@@ -97,7 +101,8 @@ func (u *Users) Login(w http.ResponseWriter, r *http.Request) {
 		vd.SetAlert(err)
 		return
 	}
-	http.Redirect(w, r, "/galleries", http.StatusFound) //302
+
+	http.Redirect(w, r, "/galleries", http.StatusFound)
 }
 
 // Logout -- POST removes user session cookie (remember token) and
