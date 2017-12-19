@@ -4,7 +4,7 @@
     <div class="card card-body">
       <div class="card-header bg-primary text-white">sign up now</div>
       <div class="card-body">
-        {{template "signupForm"}}
+        {{template "signupForm" .}}
       </div>
     </div>
   </div>
@@ -16,11 +16,11 @@
   {{csrfField}}
   <div class="form-group">
     <label for="name">Name</label>
-    <input type="text" name="name" class="form-control" id="name" aria-describedby="nameHelp" placeholder="Enter full name">
+    <input type="text" name="name" class="form-control" id="name" aria-describedby="nameHelp" placeholder="Enter full name" value="{{.Name}}">
   </div>
   <div class="form-group">
     <label for="email">Email address</label>
-    <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+    <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email" value="{{.Email}}">
   </div>
   <div class="form-group">
     <label for="password">Password</label>
