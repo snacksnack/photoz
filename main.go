@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/csrf"
 
 	"photoz/controllers"
+	"photoz/email"
 	"photoz/middleware"
 	"photoz/models"
 	"photoz/rand"
@@ -34,6 +35,12 @@ func main() {
 	//services.DestructiveReset()
 	services.AutoMigrate()
 
+	mgCfg := cfg.Mailgun
+	emailer := email.NewClient(
+		email.WithSender("photoz support", "support@sandboxdd9aceee5d1940fb859935a757e01a81.mailgun.org"),
+		email.WithMailgun(mgCfg.Domain, mgCfg.APIKey, mgCfg.PublicAPIKey),
+	)
+
 	b, err := rand.Bytes(32)
 	must(err)
 	csrfMw := csrf.Protect(b, csrf.Secure(cfg.IsProd()))
@@ -49,7 +56,7 @@ func main() {
 	r := mux.NewRouter()
 
 	staticC := controllers.NewStatic()
-	usersC := controllers.NewUsers(services.User)
+	usersC := controllers.NewUsers(services.User, emailer)
 	galleriesC := controllers.NewGalleries(services.Gallery, services.Image, r)
 
 	r.Handle("/", staticC.Home).Methods("GET")
