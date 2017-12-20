@@ -1,0 +1,23 @@
+{{define "yield"}}
+<div class="row">
+  <div class="col-md-8 offset-md-2">
+    <div class="card card-body">
+      <div class="card-header bg-primary text-white">Forgot Your Password?</div>
+      <div class="card-body">
+        {{template "forgotPwForm" .}}
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{define "forgotPwForm"}}
+<form action="/forgot" method="POST">
+  {{csrfField}}
+  <div class="form-group">
+    <label for="email">Email address</label>
+    <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email" value="{{.Email}}">
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{{end}}

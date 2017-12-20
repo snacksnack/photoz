@@ -1,0 +1,27 @@
+{{define "yield"}}
+<div class="row">
+  <div class="col-md-8 offset-md-2">
+    <div class="card card-body">
+      <div class="card-header bg-primary text-white">Reset Your Password</div>
+      <div class="card-body">
+        {{template "resetPwForm" .}}
+      </div>
+    </div>
+  </div>
+</div>
+{{end}}
+
+{{define "resetPwForm"}}
+<form action="/reset" method="POST">
+  {{csrfField}}
+  <div class="form-group">
+    <label for="token">Reset Token</label>
+    <input type="text" name="token" class="form-control" id="token" placeholder="You will receive this via email" value="{{.Token}}">
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" name="password" class="form-contorl" id="password" placeholder="Password">
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{{end}}
