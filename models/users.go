@@ -49,7 +49,7 @@ type UserService interface {
 	Authenticate(email, password string) (*User, error)
 	//InitiateReset starts the password reset process by creating reset token
 	InitiateReset(email string) (string, error)
-	//CompleteReset(...) (...)
+	CompleteReset(token, newPw string) (*User, error)
 	UserDB
 }
 
