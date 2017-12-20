@@ -39,6 +39,9 @@ const (
 
 	// ErrInvalidID returned when an invalid ID is provided to method like Delete
 	ErrIDInvalid privateError = "models: ID must be > 0"
+
+	// ErrTokenInvalid returned when invalid token passed to pw reset process
+	ErrTokenInvalid modelError = "models: token provided is not valid"
 )
 
 // want the above variables to really be constants, but cant make type error a constant

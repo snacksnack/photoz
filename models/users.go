@@ -3,6 +3,7 @@ package models
 import (
 	"regexp"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -46,13 +47,17 @@ type UserDB interface {
 // UserService is a set of methods used to work with the user model
 type UserService interface {
 	Authenticate(email, password string) (*User, error)
+	//InitiateReset starts the password reset process by creating reset token
+	InitiateReset(email string) (string, error)
+	//CompleteReset(...) (...)
 	UserDB
 }
 
 // look up user by id.
 type userService struct {
 	UserDB
-	pepper string
+	pepper    string
+	pwResetDB pwResetDB
 }
 
 // database connection
@@ -93,8 +98,9 @@ func NewUserService(db *gorm.DB, pepper, hmacKey string) UserService {
 	hmac := hash.NewHMAC(hmacKey)
 	uv := newUserValidator(ug, hmac, pepper)
 	return &userService{
-		UserDB: uv,
-		pepper: pepper,
+		UserDB:    uv,
+		pepper:    pepper,
+		pwResetDB: newPwResetValidator(&pwResetGorm{db}, hmac),
 	}
 }
 
@@ -241,6 +247,44 @@ func (us *userService) Authenticate(email, password string) (*User, error) {
 		}
 	}
 	return foundUser, nil
+}
+
+func (us *userService) InitiateReset(email string) (string, error) {
+	user, err := us.ByEmail(email)
+	if err != nil {
+		return "", err
+	}
+	pwr := pwReset{
+		UserID: user.ID,
+	}
+	if err := us.pwResetDB.Create(&pwr); err != nil {
+		return "", err
+	}
+	return pwr.Token, nil
+}
+
+func (us *userService) CompleteReset(token, newPw string) (*User, error) {
+	pwr, err := us.pwResetDB.ByToken(token)
+	if err != nil {
+		if err == ErrNotFound {
+			return nil, ErrTokenInvalid
+		}
+		return nil, err
+	}
+	if time.Now().Sub(pwr.CreatedAt) > (12 * time.Hour) {
+		return nil, ErrTokenInvalid
+	}
+	user, err := us.ById(pwr.UserID)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = newPw
+	err = us.Update(user)
+	if err != nil {
+		return nil, err
+	}
+	us.pwResetDB.Delete(pwr.ID)
+	return user, nil
 }
 
 // bcryptPassword will hash a user's password with a
