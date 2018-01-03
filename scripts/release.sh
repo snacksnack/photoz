@@ -23,6 +23,7 @@ ssh root@photoz.reidc.io "export GOPATH=/root/go; /usr/local/go/bin/go get githu
 ssh root@photoz.reidc.io "export GOPATH=/root/go; /usr/local/go/bin/go get github.com/lib/pq"
 ssh root@photoz.reidc.io "export GOPATH=/root/go; /usr/local/go/bin/go get github.com/jinzhu/gorm"
 ssh root@photoz.reidc.io "export GOPATH=/root/go; /usr/local/go/bin/go get github.com/gorilla/csrf"
+ssh root@photoz.reidc.io "export GOPATH=/root/go; /usr/local/go/bin/go get gopkg.in/mailgun/mailgun-go.v1"
 
 echo "  Building the code on remote server..."
 ssh root@photoz.reidc.io 'export GOPATH=/root/go; cd /root/app; /usr/local/go/bin/go build -o ./server $GOPATH/src/photoz/*.go'
